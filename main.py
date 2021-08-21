@@ -84,9 +84,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     # model arguments
-    parser.add_argument('--img_size', type=int, default=256,
+    parser.add_argument('--img_size', type=int, default=128,
                         help='Image resolution')
-    parser.add_argument('--num_domains', type=int, default=2,
+    parser.add_argument('--num_domains', type=int, default=4,
                         help='Number of domains')
     parser.add_argument('--latent_dim', type=int, default=16,
                         help='Latent vector dimension')
@@ -104,9 +104,11 @@ if __name__ == '__main__':
                         help='Weight for style reconstruction loss')
     parser.add_argument('--lambda_ds', type=float, default=1,
                         help='Weight for diversity sensitive loss')
+    parser.add_argument('--lambda_his', type=float, default=1,
+                        help='Weight for histogram loss')
     parser.add_argument('--ds_iter', type=int, default=100000,
                         help='Number of iterations to optimize diversity sensitive loss')
-    parser.add_argument('--w_hpf', type=float, default=1,
+    parser.add_argument('--w_hpf', type=float, default=0,
                         help='weight for high-pass filtering')
 
     # training arguments
@@ -118,7 +120,7 @@ if __name__ == '__main__':
                         help='Iterations to resume training/testing')
     parser.add_argument('--batch_size', type=int, default=8,
                         help='Batch size for training')
-    parser.add_argument('--val_batch_size', type=int, default=32,
+    parser.add_argument('--val_batch_size', type=int, default=8,
                         help='Batch size for validation')
     parser.add_argument('--lr', type=float, default=1e-4,
                         help='Learning rate for D, E and G')
@@ -143,9 +145,9 @@ if __name__ == '__main__':
                         help='Seed for random number generator')
 
     # directory for training
-    parser.add_argument('--train_img_dir', type=str, default='data/celeba_hq/train',
+    parser.add_argument('--train_img_dir', type=str, default='data/expression/train',
                         help='Directory containing training images')
-    parser.add_argument('--val_img_dir', type=str, default='data/celeba_hq/val',
+    parser.add_argument('--val_img_dir', type=str, default='data/expression/val',
                         help='Directory containing validation images')
     parser.add_argument('--sample_dir', type=str, default='expr/samples',
                         help='Directory for saving generated images')
@@ -174,9 +176,9 @@ if __name__ == '__main__':
 
     # step size
     parser.add_argument('--print_every', type=int, default=10)
-    parser.add_argument('--sample_every', type=int, default=5000)
-    parser.add_argument('--save_every', type=int, default=10000)
-    parser.add_argument('--eval_every', type=int, default=50000)
+    parser.add_argument('--sample_every', type=int, default=1000)
+    parser.add_argument('--save_every', type=int, default=5000)
+    parser.add_argument('--eval_every', type=int, default=100000)
 
     args = parser.parse_args()
     main(args)

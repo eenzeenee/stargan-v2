@@ -24,6 +24,9 @@ from core.data_loader import InputFetcher
 import core.utils as utils
 from metrics.eval import calculate_metrics
 
+# histogram loss
+from core.RGBuvHistBlock import RGBuvHistBlock
+
 
 class Solver(nn.Module):
     def __init__(self, args):
@@ -259,12 +262,20 @@ def compute_g_loss(nets, args, x_real, y_org, y_trg, z_trgs=None, x_refs=None, m
     x_rec = nets.generator(x_fake, s_org, masks=masks)
     loss_cyc = torch.mean(torch.abs(x_rec - x_real))
 
+    # TODO: implement hist loss
+    hist_block = RGBuvHistBlock()
+    hist_x_real = hist_block(x_real)
+    hist_x_fake = hist_block(x_fake)
+    loss_his = hist_loss(hist_x_real, hist_x_fake)
+
     loss = loss_adv + args.lambda_sty * loss_sty \
-        - args.lambda_ds * loss_ds + args.lambda_cyc * loss_cyc
+        - args.lambda_ds * loss_ds + args.lambda_cyc * loss_cyc + args.lambda_his * loss_his
     return loss, Munch(adv=loss_adv.item(),
                        sty=loss_sty.item(),
                        ds=loss_ds.item(),
-                       cyc=loss_cyc.item())
+                       cyc=loss_cyc.item(),
+                       his=loss_his.item(),
+                       )
 
 
 def moving_average(model, model_test, beta=0.999):
@@ -290,3 +301,10 @@ def r1_reg(d_out, x_in):
     assert(grad_dout2.size() == x_in.size())
     reg = 0.5 * grad_dout2.view(batch_size, -1).sum(1).mean(0)
     return reg
+
+
+def hist_loss(real, fake):
+    histogram_loss = (1 / (2.0 ** 0.5) * (torch.sqrt(torch.sum(
+        torch.pow(torch.sqrt(real) - torch.sqrt(fake), 2)))) /
+                      fake.shape[0])
+    return histogram_loss
